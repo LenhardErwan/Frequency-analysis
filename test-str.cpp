@@ -118,17 +118,17 @@ int main() {
 
         for (std::map<std::string, float>::iterator it = freqLet->begin(); it != freqLet->end(); ++it) {    //Parcours de la liste
             std::cout << it->first << " has value " << it->second << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
-        }
-        */
+        }*/
+        
 
         freqDig = freqDigramme(nbIte, path);
         //A ecrire dans un fichier
-        /*std::cout << freqLet->size() << ", nbCar = " << nbIte << std::endl; //Affiche la taille de la map et le nombre de caractère analysé pris en compte
+        /*std::cout << freqDig->size() << ", nbCar = " << nbIte << std::endl; //Affiche la taille de la map et le nombre de caractère analysé pris en compte
 
-        for (std::map<std::string, float>::iterator it = freqLet->begin(); it != freqLet->end(); ++it) {    //Parcours de la liste
+        for (std::map<std::string, float>::iterator it = freqDig->begin(); it != freqDig->end(); ++it) {    //Parcours de la liste
             std::cout << it->first << " has value " << it->second << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
-        }
-        */
+        }*/
+        
     }
     catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
         std::cerr << e.what() << std::endl;
