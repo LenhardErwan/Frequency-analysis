@@ -147,7 +147,7 @@ void printMap(std::map<std::string, float> * map, int nbChar, std::string path) 
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
     //A ecrire dans un fichier
-    fic << "Taille de la map :" << map->size() << ", Nombre de caractères testés " << nbChar << std::endl; //Affiche la taille de la map et le nombre de caractère analysé pris en compte
+    fic << "Taille de la map " << map->size() << ", Nombre de graphènes trouvés " << nbChar << std::endl; //Affiche la taille de la map et le nombre de caractère analysé pris en compte
 
     for (std::map<std::string, float>::iterator it = map->begin(); it != map->end(); ++it) {    //Parcours de la liste
         fic << it->first << " à pour valeur " << it->second << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
@@ -160,6 +160,7 @@ void printMap(std::map<std::string, float> * map, int nbChar, std::string path) 
 
 int main() {
     clock_t t1=clock();
+    std::remove("./result.txt");    //Supprime le fichier de resultat s'il existe déja
 
     std::string pathIn = "./liste_francais_sansAccents.txt";    //Il faudrai le passé en argument du programme
     std::string pathOut = "./result.txt";    //Il faudrai le passé en argument du programme
