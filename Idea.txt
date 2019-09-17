@@ -1,9 +1,0 @@
-Main
-- fonction freq lettre
-- fonction freq mot qui commence par lettre
-- fonction freq digramme
-- fonction freq mot qui commence par digramme
-- fonction freq trigramme
-- fonction freq mot qui commence par trigramme
-
-Chaque fonction retourne un pointeur sur map (clé: lettre/di|trigramme, valeur : freq)
