@@ -82,7 +82,7 @@ std::map<std::string, float>* freqDigramme(/*out*/ unsigned long& nbIte, std::st
         if(it != map->end()) {  //Si le caractère existe dans la map
             ++it->second;   //Incrémente la valeur du caractère
             ++count;    //Incrémente le nombre de caractère pris en compte dans l'analyse
-            fic.get(); //On passe au caractère suivant (évite de prendre un lettre deux fois pour un digramme)
+            fic.get(c); //On passe au caractère suivant (évite de prendre un lettre deux fois pour un digramme)
         }
         old = c;
     }
@@ -102,7 +102,7 @@ std::map<std::string, float>* freqTrigramme(/*out*/ unsigned long& nbIte, std::s
 
     std::map<std::string, float> * map = new std::map<std::string, float>;  //Créer une map avec pour clé les caractère et pour valeur leur itération
 
-    //Génère les digrammes
+    //Génère les Trigrammes
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
         for(char letter2 = 'a';  letter2 <= 'z'; ++letter2) {
             for(char letter3 = 'a';  letter3 <= 'z'; ++letter3) {
@@ -126,6 +126,7 @@ std::map<std::string, float>* freqTrigramme(/*out*/ unsigned long& nbIte, std::s
             ++it->second;   //Incrémente la valeur du caractère
             ++count;    //Incrémente le nombre de caractère pris en compte dans l'analyse
             fic.get(c);
+            old = c;
             fic.get(c);  //Saute 2 caractère (evite de re utiliser les 3 caractère que l'ont viens d'utiliser)
         }
         old2 = old;
