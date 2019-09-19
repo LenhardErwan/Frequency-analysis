@@ -162,7 +162,7 @@ int main() {
     clock_t t1=clock();
     std::remove("./result.txt");    //Supprime le fichier de resultat s'il existe déja
 
-    std::string pathIn = "./liste_francais_sansAccents.txt";    //Il faudrai le passé en argument du programme
+    std::string pathIn = "./test.txt";    //Il faudrai le passé en argument du programme
     std::string pathOut = "./result.txt";    //Il faudrai le passé en argument du programme
     unsigned long nbLetter, nbDigramme, nbTrigramme;
     std::map<std::string, float> * freqLet = nullptr;
