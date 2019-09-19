@@ -20,8 +20,8 @@ void Analyse::calcFreq() {
     }
 }
 
-bool Analyse::incGraphene(std::string graphene) {
-    std::map<std::string, float>::iterator it = map->find(graphene);
+bool Analyse::incGraphene(std::string* graphene) {
+    std::map<std::string, float>::iterator it = map->find( *graphene );    //créé un itérateur sur la map
 
     if(it != map->end()) {  //Si le graphène existe dans la map
         ++it->second;   //Incrémente la valeur du graphène

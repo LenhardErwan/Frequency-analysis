@@ -62,18 +62,18 @@ void startAnalyse(Analyse* aLetter, Analyse* aDigramme, Analyse* aTrigramme, std
 
 
     char c; //Caractère lut
-    std::string dig = "", trig = "";
+    std::string letter ="", dig = "", trig = "";
 
     while (fic.get(c)) {    //Tant que il y a des caractères a lire
         c = (char) tolower(c);  //met en minuscule le caractère test
 
         //Pour les caractères uniquement
-        aLetter->incGraphene(std::string(1, c));
+        aLetter->incGraphene(&(letter = c));
 
         //Pour les digrammes
         dig = dig + c;
         if(dig.length() >= 2) {
-            if(aDigramme->incGraphene(dig))
+            if(aDigramme->incGraphene(&dig))
                 dig = "";   //remet le graphène à zero (evite d'utiliser un caractère dans deux digrammes)
             else
                 dig.erase(0,1);   //Efface le premier caractère du digramme
@@ -82,7 +82,7 @@ void startAnalyse(Analyse* aLetter, Analyse* aDigramme, Analyse* aTrigramme, std
         //Pour les trigrammes
         trig = trig + c;
         if(trig.length() >= 3) {
-            if(aTrigramme->incGraphene(trig))
+            if(aTrigramme->incGraphene(&trig))
                 trig = "";   //remet le graphène à zero (evite d'utiliser un caractère dans deux trigrammes)
             else
                 trig.erase(0,1);   //Efface le premier caractère du trigramme
@@ -101,18 +101,11 @@ int main() {
     clock_t t1=clock();
     std::remove("./result2.txt");    //Supprime le fichier de resultat s'il existe déja
 
-    std::string pathIn = "./test.txt";    //Il faudrai le passé en argument du programme
+    std::string pathIn = "./grosfichier.txt";    //Il faudrai le passé en argument du programme
     std::string pathOut = "./result2.txt";    //Il faudrai le passé en argument du programme
-    unsigned long nbLetter, nbDigramme, nbTrigramme;
     Analyse * aLetter = generateLetterAnalyse();
     Analyse * aDigramme = generateDigrammeAnalyse();
     Analyse * aTrigramme = generateTrigrammeAnalyse();
-
-    startAnalyse(aLetter, aDigramme, aTrigramme, pathIn);
-
-    printAnalyse(aLetter, pathOut);
-    printAnalyse(aDigramme, pathOut);
-    printAnalyse(aTrigramme, pathOut);
 
     try {
         startAnalyse(aLetter, aDigramme, aTrigramme, pathIn);

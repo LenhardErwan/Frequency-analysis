@@ -12,7 +12,7 @@ class Analyse {
         ~Analyse();
 
         void calcFreq();
-        bool incGraphene(std::string graphene);
+        bool incGraphene(std::string* graphene);
 
         inline unsigned long getNbGraphene() {return nbGraphene;}
         inline const std::map<std::string, float>* getMap() {return map;}
