@@ -2,21 +2,21 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
-#include <thread>
+#include <pthread.h>
 
 #include "Analyse.hpp"
 
-Analyse* generateLetterAnalyse(std::string path) {
+Analyse* generateLetterAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter = 'a'; letter <= 'z'; ++letter) {  //Permet d'avoir tout l'alphabet en minuscule
         map->emplace(std::string(1, letter), 0.0f);    //rempli la map avec l'alaphabet initialisé à 0
     }
 
-    return new Analyse(map, path);
+    return new Analyse(map, pathIn);
 }
 
-Analyse* generateDigrammeAnalyse(std::string path) {
+Analyse* generateDigrammeAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -25,10 +25,10 @@ Analyse* generateDigrammeAnalyse(std::string path) {
         }
     }
 
-    return new Analyse(map, path);
+    return new Analyse(map, pathIn);
 }
 
-Analyse* generateTrigrammeAnalyse(std::string path) {
+Analyse* generateTrigrammeAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -39,7 +39,7 @@ Analyse* generateTrigrammeAnalyse(std::string path) {
         }
     }
 
-    return new Analyse(map, path);
+    return new Analyse(map, pathIn);
 }
 
 
@@ -55,9 +55,10 @@ void printAnalyse(Analyse * a, std::string path) {
     fic.close();
 }
 
-void freqLetter(Analyse* a) {
-    std::string path = a->getPathIn();
+void* freqLetter(void* analyse) {
+    Analyse * a = (Analyse*) analyse;
 
+    std::string path = a->getPathIn();
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -75,9 +76,10 @@ void freqLetter(Analyse* a) {
     fic.close();    //ferme le fichier (libère la mémoire je suppose)
 }
 
-void freqDigramme(Analyse * a) {
-    std::string path = a->getPathIn();
+void* freqDigramme(void* analyse) {
+    Analyse * a = (Analyse*) analyse;
 
+    std::string path = a->getPathIn();
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -101,9 +103,10 @@ void freqDigramme(Analyse * a) {
     fic.close();
 }
 
-void freqTrigramme(Analyse* a) {
-    std::string path = a->getPathIn();
+void* freqTrigramme(void* analyse) {
+    Analyse * a = (Analyse*) analyse;
 
+    std::string path = a->getPathIn();
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -137,25 +140,26 @@ int main() {
 
     std::string pathIn = "./grosfichier.txt";    //Il faudrai le passé en argument du programme
     std::string pathOut = "./result2.txt";    //Il faudrai le passé en argument du programme
+
     Analyse * aLetter = generateLetterAnalyse(pathIn);
     Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
     Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
 
-    std::thread th1;
-    std::thread th2;
-    std::thread th3;
+    pthread_t th1;
+    pthread_t th2;
+    pthread_t th3;
 
     try {
-        std::thread t1(freqLetter, aLetter);
-        std::thread t2(freqDigramme, aDigramme);
-        std::thread t3(freqTrigramme, aTrigramme);
+        pthread_create(&th1, NULL, freqLetter, (void*) aLetter);
+        pthread_create(&th2, NULL, freqDigramme, (void*) aDigramme);
+        pthread_create(&th3, NULL, freqTrigramme, (void*) aTrigramme);
 
 
-        t1.join();
+        pthread_join(th1, NULL);
         printAnalyse(aLetter, pathOut);
-        t2.join();
+        pthread_join(th2, NULL);
         printAnalyse(aDigramme, pathOut);
-        t3.join();
+        pthread_join(th3, NULL);
         printAnalyse(aTrigramme, pathOut);
         
     }

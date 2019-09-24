@@ -5,17 +5,17 @@
 
 #include "Analyse.hpp"
 
-Analyse* generateLetterAnalyse() {
+Analyse* generateLetterAnalyse(std::string path) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter = 'a'; letter <= 'z'; ++letter) {  //Permet d'avoir tout l'alphabet en minuscule
         map->emplace(std::string(1, letter), 0.0f);    //rempli la map avec l'alaphabet initialisé à 0
     }
 
-    return new Analyse(map);
+    return new Analyse(map, path);
 }
 
-Analyse* generateDigrammeAnalyse() {
+Analyse* generateDigrammeAnalyse(std::string path) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -24,10 +24,10 @@ Analyse* generateDigrammeAnalyse() {
         }
     }
 
-    return new Analyse(map);
+    return new Analyse(map, path);
 }
 
-Analyse* generateTrigrammeAnalyse() {
+Analyse* generateTrigrammeAnalyse(std::string path) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -38,7 +38,7 @@ Analyse* generateTrigrammeAnalyse() {
         }
     }
 
-    return new Analyse(map);
+    return new Analyse(map, path);
 }
 
 
@@ -49,12 +49,19 @@ void printAnalyse(Analyse * a, std::string path) {
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
     
-    fic << (*a);   //Ecrit dans le fichier les données de l'Analyse
+    fic << "Graphène, Fréquence" << std::endl;
+    for (std::map<std::string, float>::iterator it = a->getMap()->begin(); it != a->getMap()->end(); ++it) {    //Parcours de la liste
+        fic << it->first << "," << it->second << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
+    }
+
+    //fic << (*a);   //Ecrit dans le fichier les données de l'Analyse
 
     fic.close();
 }
 
-void freqLetter(Analyse* a, std::string path) {
+void freqLetter(Analyse* a) {
+    std::string path = a->getPathIn();
+
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -72,7 +79,9 @@ void freqLetter(Analyse* a, std::string path) {
     fic.close();    //ferme le fichier (libère la mémoire je suppose)
 }
 
-void freqDigramme(Analyse * a, std::string path) {
+void freqDigramme(Analyse * a) {
+    std::string path = a->getPathIn();
+
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -96,13 +105,13 @@ void freqDigramme(Analyse * a, std::string path) {
     fic.close();
 }
 
-void freqTrigramme(Analyse* a, std::string path) {
+void freqTrigramme(Analyse* a) {
+    std::string path = a->getPathIn();
+
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
-
-    std::map<std::string, float> * map = new std::map<std::string, float>;  //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     char c; //Caractère lut (dernier caractère)
     char old2 = tolower(fic.get());    // sur trois caractère c'est le premier
@@ -128,18 +137,19 @@ void freqTrigramme(Analyse* a, std::string path) {
 
 int main() {
     clock_t t1=clock();
-    std::remove("./result2.txt");    //Supprime le fichier de resultat s'il existe déja
+    std::remove("./result.csv");    //Supprime le fichier de resultat s'il existe déja
 
     std::string pathIn = "./grosfichier.txt";    //Il faudrai le passé en argument du programme
-    std::string pathOut = "./result2.txt";    //Il faudrai le passé en argument du programme
-    Analyse * aLetter = generateLetterAnalyse();
-    Analyse * aDigramme = generateDigrammeAnalyse();
-    Analyse * aTrigramme = generateTrigrammeAnalyse();
+    std::string pathOut = "./result.csv";    //Il faudrai le passé en argument du programme
+    Analyse * aLetter = generateLetterAnalyse(pathIn);
+    Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
+    Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
 
     try {
-        freqLetter(aLetter, pathIn);
-        freqDigramme(aDigramme, pathIn);
-        freqTrigramme(aTrigramme, pathIn);
+        freqLetter(aLetter);
+        freqDigramme(aDigramme);
+        freqTrigramme(aTrigramme);
+
 
         printAnalyse(aLetter, pathOut);
         printAnalyse(aDigramme, pathOut);

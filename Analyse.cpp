@@ -2,11 +2,13 @@
 
 Analyse::Analyse() {
     nbGraphene = 0;
+    pathIn = "";
     map = new std::map<std::string, float>;
 }
 
-Analyse::Analyse(std::map<std::string, float>* _map) {
+Analyse::Analyse(std::map<std::string, float>* _map, std::string _pathIn) {
     nbGraphene = 0;
+    pathIn = _pathIn;
     map = _map;
 }
 
