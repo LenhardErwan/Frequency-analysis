@@ -49,9 +49,9 @@ void printAnalyse(Analyse * a, std::string path) {
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
     
-    fic << "Graphène, Fréquence" << std::endl;
+    fic << "Graphène; Fréquence" << std::endl;
     for (std::map<std::string, float>::iterator it = a->getMap()->begin(); it != a->getMap()->end(); ++it) {    //Parcours de la liste
-        fic << it->first << "," << it->second << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
+        fic << it->first << ";" << std::to_string(it->second).replace(1,1, ",") << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
     }
 
     //fic << (*a);   //Ecrit dans le fichier les données de l'Analyse

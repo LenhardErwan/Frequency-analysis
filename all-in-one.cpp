@@ -5,17 +5,17 @@
 
 #include "Analyse.hpp"
 
-Analyse* generateLetterAnalyse() {
+Analyse* generateLetterAnalyse(std::string path) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter = 'a'; letter <= 'z'; ++letter) {  //Permet d'avoir tout l'alphabet en minuscule
         map->emplace(std::string(1, letter), 0.0f);    //rempli la map avec l'alaphabet initialisé à 0
     }
 
-    return new Analyse(map);
+    return new Analyse(map, path);
 }
 
-Analyse* generateDigrammeAnalyse() {
+Analyse* generateDigrammeAnalyse(std::string path) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -24,10 +24,10 @@ Analyse* generateDigrammeAnalyse() {
         }
     }
 
-    return new Analyse(map);
+    return new Analyse(map, path);
 }
 
-Analyse* generateTrigrammeAnalyse() {
+Analyse* generateTrigrammeAnalyse(std::string path) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -38,7 +38,7 @@ Analyse* generateTrigrammeAnalyse() {
         }
     }
 
-    return new Analyse(map);
+    return new Analyse(map, path);
 }
 
 
@@ -49,7 +49,12 @@ void printAnalyse(Analyse * a, std::string path) {
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
     
-    fic << (*a);   //Ecrit dans le fichier les données de l'Analyse
+    fic << "Graphène; Fréquence" << std::endl;
+    for (std::map<std::string, float>::iterator it = a->getMap()->begin(); it != a->getMap()->end(); ++it) {    //Parcours de la liste
+        fic << it->first << ";" << std::to_string(it->second).replace(1,1, ",") << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence
+    }
+
+    //fic << (*a);   //Ecrit dans le fichier les données de l'Analyse
 
     fic.close();
 }

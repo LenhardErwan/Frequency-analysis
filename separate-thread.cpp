@@ -141,10 +141,6 @@ int main() {
     Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
     Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
 
-    std::thread th1;
-    std::thread th2;
-    std::thread th3;
-
     try {
         std::thread t1(freqLetter, aLetter);
         std::thread t2(freqDigramme, aDigramme);
