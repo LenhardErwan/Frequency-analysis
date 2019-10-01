@@ -3,6 +3,8 @@
 #include <fstream>
 #include <time.h>
 #include <pthread.h>
+#include <chrono>
+#include <ctime> 
 
 #include "Analyse.hpp"
 
@@ -134,12 +136,24 @@ void* freqTrigramme(void* analyse) {
     fic.close();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     clock_t t1=clock();
-    std::remove("./result2.txt");    //Supprime le fichier de resultat s'il existe déja
+    
+    auto end = std::chrono::system_clock::now();
+    std::time_t date_actuelle = std::chrono::system_clock::to_time_t(end);
+    std::string date_heure =  std::ctime(&date_actuelle);
+    date_heure.append(".txt");
+   
 
-    std::string pathIn = "./grosfichier.txt";    //Il faudrai le passé en argument du programme
-    std::string pathOut = "./result2.txt";    //Il faudrai le passé en argument du programme
+    std::ofstream outfile (date_heure);
+
+    outfile << "coucou ici resultats" << std::endl;
+
+    outfile.close();
+
+
+    std::string pathIn = argv[1];    // argument 1, chemin du fichier à analyser
+    std::string pathOut = date_heure;    // le fichier resultat prend pour nom l'heure et la date actuelle
 
     Analyse * aLetter = generateLetterAnalyse(pathIn);
     Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
