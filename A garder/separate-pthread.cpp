@@ -164,10 +164,6 @@ int main(int argc, char *argv[]) {
 
     std::ofstream fout(date_heure);
 
-    //outfile << "coucou ici resultats" << std::endl;
-
-    //outfile.close();
-
 
     std::string pathIn = nomanalyse;    // argument 1, chemin du fichier à analyser
     std::string pathOut = date_heure;    // le fichier resultat prend pour nom l'heure et la date actuelle
