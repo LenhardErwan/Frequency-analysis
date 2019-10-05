@@ -108,9 +108,9 @@ int main() {
 
     std::string pathIn = "./grosfichier.txt";    //Il faudrai le passé en argument du programme
     std::string pathOut = "./result2.txt";    //Il faudrai le passé en argument du programme
-    Analyse * aLetter = generateLetterAnalyse();
-    Analyse * aDigramme = generateDigrammeAnalyse();
-    Analyse * aTrigramme = generateTrigrammeAnalyse();
+    Analyse * aLetter = generateLetterAnalyse(pathIn);
+    Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
+    Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
 
     try {
         startAnalyse(aLetter, aDigramme, aTrigramme, pathIn);

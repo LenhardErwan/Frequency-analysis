@@ -137,22 +137,39 @@ void* freqTrigramme(void* analyse) {
 }
 
 int main(int argc, char *argv[]) {
+    if (argc == 1) { // verification de la présence des arguments
+        std::cerr << "Il manque un argument : veuillez ajouter le nom du fichier a analyser" << std::endl;
+    } else if (argc == 2) {
+        std::cerr << "Il manque un argument : veuillez ajouter le nom du fichier de resultats" << std::endl;
+    }
+
     clock_t t1=clock();
     
-    auto end = std::chrono::system_clock::now();
+    auto end = std::chrono::system_clock::now(); 
     std::time_t date_actuelle = std::chrono::system_clock::to_time_t(end);
     std::string date_heure =  std::ctime(&date_actuelle);
-    date_heure.append(".txt");
+
    
+    for (int i=0; i < date_heure.length(); i=i+1) {
+        if (date_heure[i] == ':') {
+            date_heure[i] = '.';
+        }
+        if (date_heure[i] == ' ') {
+            date_heure.replace (i,1,".");
+        }
+    }
+    date_heure.append(".txt");
+    std::string nomanalyse = argv[1];
+    nomanalyse.append(".txt");
 
-    std::ofstream outfile (date_heure);
+    std::ofstream fout(date_heure);
 
-    outfile << "coucou ici resultats" << std::endl;
+    //outfile << "coucou ici resultats" << std::endl;
 
-    outfile.close();
+    //outfile.close();
 
 
-    std::string pathIn = argv[1];    // argument 1, chemin du fichier à analyser
+    std::string pathIn = nomanalyse;    // argument 1, chemin du fichier à analyser
     std::string pathOut = date_heure;    // le fichier resultat prend pour nom l'heure et la date actuelle
 
     Analyse * aLetter = generateLetterAnalyse(pathIn);
