@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
             date_heure[i] = '.';
         }
         if (date_heure[i] == ' ') {
-            date_heure.replace (i,1,".");
+            date_heure.replace (i,1,"_");
         }
     }
     date_heure.append(".txt");
