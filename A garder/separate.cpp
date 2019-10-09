@@ -128,51 +128,69 @@ void freqTrigramme(Analyse * a) {
     fic.close();
 }
 
-int main() {
-    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    std::remove("./result.txt");    //Supprime le fichier de resultat s'il existe déja
-
-    std::string pathIn = "../grosfichier.txt";    //Il faudrai le passé en argument du programme
-    std::string pathOut = "./result.txt";    //Il faudrai le passé en argument du programme
-
-    Analyse * aLetter = generateLetterAnalyse(pathIn);
-    Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
-    Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
-
-    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> temps = t2 - t1;
-    std::cout << "Temps d'initialisation : " << temps.count() << "ms" <<std::endl;
-
-    try {
-        freqLetter(aLetter);
-        freqDigramme(aDigramme);
-        freqTrigramme(aTrigramme);
-
-        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
-        temps = t3 - t2;
-        std::cout << "Temps d'analyse : " << temps.count() << "ms" <<std::endl;
-
-
-        printAnalyse(aLetter, pathOut);
-        printAnalyse(aDigramme, pathOut);
-        printAnalyse(aTrigramme, pathOut);
-
-        std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
-        temps = t4 - t3;
-        std::cout << "Temps d'ecriture : " << temps.count() << "ms" <<std::endl;
-        
-    }
-    catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
-        std::cerr << e.what() << std::endl;
-    }
+int main(int argc, char *argv[]) {
+    if (argc != 2) { // verification de la présence des arguments
+        std::cerr << "Commandes : " << argv[0] << " <path_to_file>" << std::endl;
+    } else {
+        auto end = std::chrono::system_clock::now(); 
+        std::time_t date_actuelle = std::chrono::system_clock::to_time_t(end);
+        std::string date_heure =  std::ctime(&date_actuelle);
     
-    delete aLetter;         //Libère la mémoire
-    delete aDigramme;
-    delete aTrigramme;
+        for (size_t i=0; i < date_heure.length(); ++i) {
+            if (date_heure[i] == ':') {
+                date_heure[i] = '-';
+            }
+            if (date_heure[i] == ' ') {
+                date_heure.replace (i,1,"_");
+            }
+        }
+        date_heure.erase(date_heure.length()-1, 1);
+        date_heure.append(".txt");
 
-    std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
-    temps = t5 - t1;
-    std::cout << "Le temps d'exécution total est de : " << temps.count() << "ms" <<std::endl;
+        std::string pathIn = argv[1];    // argument 1, chemin du fichier à analyser
+        std::string pathOut = date_heure;    // le fichier resultat prend pour nom l'heure et la date actuelle
 
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+        Analyse * aLetter = generateLetterAnalyse(pathIn);
+        Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
+        Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
+
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> temps = t2 - t1;
+        std::cout << "Temps d'initialisation : " << temps.count() << "ms" <<std::endl;
+
+        try {
+            freqLetter(aLetter);
+            freqDigramme(aDigramme);
+            freqTrigramme(aTrigramme);
+
+            std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+            temps = t3 - t2;
+            std::cout << "Temps d'analyse : " << temps.count() << "ms" <<std::endl;
+
+
+            printAnalyse(aLetter, pathOut);
+            printAnalyse(aDigramme, pathOut);
+            printAnalyse(aTrigramme, pathOut);
+
+            std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
+            temps = t4 - t3;
+            std::cout << "Temps d'ecriture : " << temps.count() << "ms" <<std::endl;
+            
+        }
+        catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
+            std::cerr << e.what() << std::endl;
+        }
+        
+        delete aLetter;         //Libère la mémoire
+        delete aDigramme;
+        delete aTrigramme;
+
+        std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
+        temps = t5 - t1;
+        std::cout << "Le temps d'exécution total est de : " << temps.count() << "ms" <<std::endl;
+
+    }
     return EXIT_SUCCESS;    //FIN
 }

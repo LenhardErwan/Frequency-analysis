@@ -143,73 +143,67 @@ void* freqTrigramme(void* analyse) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc == 1) { // verification de la présence des arguments
-        std::cerr << "Il manque un argument : veuillez ajouter le nom du fichier a analyser" << std::endl;
-    } else if (argc == 2) {
-        std::cerr << "Il manque un argument : veuillez ajouter le nom du fichier de resultats" << std::endl;
-    }
-
-    clock_t t1=clock();
+    if (argc != 2) { // verification de la présence des arguments
+        std::cerr << "Commandes : " << argv[0] << " <path_to_file>" << std::endl;
+    } else {
+        auto end = std::chrono::system_clock::now(); 
+        std::time_t date_actuelle = std::chrono::system_clock::to_time_t(end);
+        std::string date_heure =  std::ctime(&date_actuelle);
     
-    auto end = std::chrono::system_clock::now(); 
-    std::time_t date_actuelle = std::chrono::system_clock::to_time_t(end);
-    std::string date_heure =  std::ctime(&date_actuelle);
-
-   
-    for (int i=0; i < date_heure.length(); i=i+1) {
-        if (date_heure[i] == ':') {
-            date_heure[i] = '.';
+        for (size_t i=0; i < date_heure.length(); ++i) {
+            if (date_heure[i] == ':') {
+                date_heure[i] = '-';
+            }
+            if (date_heure[i] == ' ') {
+                date_heure.replace (i,1,"_");
+            }
         }
-        if (date_heure[i] == ' ') {
-            date_heure.replace (i,1,"_");
+        date_heure.erase(date_heure.length()-1, 1);
+        date_heure.append(".txt");
+
+        std::string pathIn = argv[1];    // argument 1, chemin du fichier à analyser
+        std::string pathOut = date_heure;    // le fichier resultat prend pour nom l'heure et la date actuelle
+
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+        Analyse * aLetter = generateLetterAnalyse(pathIn);
+        Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
+        Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
+
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> temps = t2 - t1;
+        std::cout << "Temps d'initialisation : " << temps.count() << "ms" <<std::endl;
+
+        pthread_t th1;
+        pthread_t th2;
+        pthread_t th3;
+
+        try {
+            pthread_create(&th1, NULL, freqLetter, (void*) aLetter);
+            pthread_create(&th2, NULL, freqDigramme, (void*) aDigramme);
+            pthread_create(&th3, NULL, freqTrigramme, (void*) aTrigramme);
+
+
+            pthread_join(th1, NULL);
+            printAnalyse(aLetter, pathOut);
+            pthread_join(th2, NULL);
+            printAnalyse(aDigramme, pathOut);
+            pthread_join(th3, NULL);
+            printAnalyse(aTrigramme, pathOut);
         }
+        catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
+            std::cerr << e.what() << std::endl;
+        }
+        
+        delete aLetter;         //Libère la mémoire
+        delete aDigramme;
+        delete aTrigramme;
+
+        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+        temps = t3 - t1;
+        std::cout << "Le temps d'exécution total est de : " << temps.count() << "ms" <<std::endl;
+
     }
-    date_heure.append(".txt");
-    std::string nomanalyse = argv[1];
-    nomanalyse.append(".txt");
-
-    std::ofstream fout(date_heure);
-
-
-    std::string pathIn = nomanalyse;    // argument 1, chemin du fichier à analyser
-    std::string pathOut = date_heure;    // le fichier resultat prend pour nom l'heure et la date actuelle
-
-    Analyse * aLetter = generateLetterAnalyse(pathIn);
-    Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
-    Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
-
-    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> temps = t2 - t1;
-    std::cout << "Temps d'initialisation : " << temps.count() << "ms" <<std::endl;
-
-    pthread_t th1;
-    pthread_t th2;
-    pthread_t th3;
-
-    try {
-        pthread_create(&th1, NULL, freqLetter, (void*) aLetter);
-        pthread_create(&th2, NULL, freqDigramme, (void*) aDigramme);
-        pthread_create(&th3, NULL, freqTrigramme, (void*) aTrigramme);
-
-
-        pthread_join(th1, NULL);
-        printAnalyse(aLetter, pathOut);
-        pthread_join(th2, NULL);
-        printAnalyse(aDigramme, pathOut);
-        pthread_join(th3, NULL);
-        printAnalyse(aTrigramme, pathOut);
-    }
-    catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
-        std::cerr << e.what() << std::endl;
-    }
-    
-    delete aLetter;         //Libère la mémoire
-    delete aDigramme;
-    delete aTrigramme;
-
-    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
-    temps = t3 - t1;
-    std::cout << "Le temps d'exécution total est de : " << temps.count() << "ms" <<std::endl;
 
     return EXIT_SUCCESS;    //FIN
 }
