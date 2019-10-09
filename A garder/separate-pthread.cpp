@@ -8,6 +8,13 @@
 
 #include "Analyse.hpp"
 
+
+/**
+ * @brief Créer un objet Analyse pour connaitre la fréquence des lettres a-z
+ * 
+ * @param pathIn : Chemin vers le fichier à analyser
+ * @return Analyse* : Pointeur sur un l'objet Analyse
+ */
 Analyse* generateLetterAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
@@ -18,6 +25,12 @@ Analyse* generateLetterAnalyse(std::string pathIn) {
     return new Analyse(map, pathIn);
 }
 
+/**
+ * @brief Créer un objet Analyse pour connaitre la fréquence des digrammes aa-zz
+ * 
+ * @param pathIn : Chemin vers le fichier à analyser
+ * @return Analyse* : Pointeur sur un l'objet Analyse
+ */
 Analyse* generateDigrammeAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
@@ -30,6 +43,12 @@ Analyse* generateDigrammeAnalyse(std::string pathIn) {
     return new Analyse(map, pathIn);
 }
 
+/**
+ * @brief Créer un objet Analyse pour connaitre la fréquence des trigrammes aaa-zzz
+ * 
+ * @param pathIn : Chemin vers le fichier à analyser
+ * @return Analyse* : Pointeur sur un l'objet Analyse
+ */
 Analyse* generateTrigrammeAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
@@ -44,7 +63,12 @@ Analyse* generateTrigrammeAnalyse(std::string pathIn) {
     return new Analyse(map, pathIn);
 }
 
-
+/**
+ * @brief Ecris à la suite d'un fichier les résulats de l'analyse
+ * 
+ * @param a : pointeur sur l'objet Analyse
+ * @param path : chemin vers le fichier de sortie
+ */
 void printAnalyse(Analyse * a, std::string path) {
 	std::ofstream fic;
     fic.open(path, std::ios::out | std::ios::app);	//Creer un ostream avec ce buffer
@@ -57,6 +81,12 @@ void printAnalyse(Analyse * a, std::string path) {
     fic.close();
 }
 
+/**
+ * @brief Effectue la fréquence des lettres a-z
+ * 
+ * @param analyse : pointeur sur l'objet Analyse
+ * @return void* : procédure
+ */
 void* freqLetter(void* analyse) {
     Analyse * a = (Analyse*) analyse;
 
@@ -80,6 +110,12 @@ void* freqLetter(void* analyse) {
     return NULL;    //Evite les warning
 }
 
+/**
+ * @brief Effectue la fréquence des digrammes aa-zz
+ * 
+ * @param analyse : pointeur sur l'objet Analyse
+ * @return void* : procédure
+ */
 void* freqDigramme(void* analyse) {
     Analyse * a = (Analyse*) analyse;
 
@@ -109,6 +145,12 @@ void* freqDigramme(void* analyse) {
     return NULL;    //Evite les warning
 }
 
+/**
+ * @brief Effectue la fréquence des trigramme aaa-zzz
+ * 
+ * @param analyse : pointeur sur l'objet Analyse
+ * @return void* : procédure
+ */
 void* freqTrigramme(void* analyse) {
     Analyse * a = (Analyse*) analyse;
 
