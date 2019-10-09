@@ -1,22 +1,22 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <time.h>
-#include <thread>
+#include <chrono>
+#include <pthread.h>
 
 #include "Analyse.hpp"
 
-Analyse* generateLetterAnalyse(std::string path) {
+Analyse* generateLetterAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter = 'a'; letter <= 'z'; ++letter) {  //Permet d'avoir tout l'alphabet en minuscule
         map->emplace(std::string(1, letter), 0.0f);    //rempli la map avec l'alaphabet initialisé à 0
     }
 
-    return new Analyse(map, path);
+    return new Analyse(map, pathIn);
 }
 
-Analyse* generateDigrammeAnalyse(std::string path) {
+Analyse* generateDigrammeAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -25,10 +25,10 @@ Analyse* generateDigrammeAnalyse(std::string path) {
         }
     }
 
-    return new Analyse(map, path);
+    return new Analyse(map, pathIn);
 }
 
-Analyse* generateTrigrammeAnalyse(std::string path) {
+Analyse* generateTrigrammeAnalyse(std::string pathIn) {
     std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
@@ -39,7 +39,7 @@ Analyse* generateTrigrammeAnalyse(std::string path) {
         }
     }
 
-    return new Analyse(map, path);
+    return new Analyse(map, pathIn);
 }
 
 
@@ -55,9 +55,8 @@ void printAnalyse(Analyse * a, std::string path) {
     fic.close();
 }
 
-void freqLetter(Analyse* a) {
+void freqLetter(Analyse * a) {
     std::string path = a->getPathIn();
-
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -77,7 +76,6 @@ void freqLetter(Analyse* a) {
 
 void freqDigramme(Analyse * a) {
     std::string path = a->getPathIn();
-
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -101,9 +99,8 @@ void freqDigramme(Analyse * a) {
     fic.close();
 }
 
-void freqTrigramme(Analyse* a) {
+void freqTrigramme(Analyse * a) {
     std::string path = a->getPathIn();
-
     std::ifstream fic;
     fic.open(path, std::ios_base::in);  //Ouvre le fichier en lecture
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
@@ -112,12 +109,12 @@ void freqTrigramme(Analyse* a) {
     char c; //Caractère lut (dernier caractère)
     char old2 = tolower(fic.get());    // sur trois caractère c'est le premier
     char old = tolower(fic.get());     // sur trois caractère c'est le second
-    std::string trigramme = "";  //Variable temporaire qui prend le caractère extrait + le suivant (non  extrait)
+    std::string * trigramme = new std::string("");  //Variable temporaire qui prend le caractère extrait + le suivant (non  extrait)
 
     while (fic.get(c)) {    //Tant que il y a des caractères a lire
         c = tolower(c);  //met en minuscule le caractère testé
-        trigramme = std::string() + old2 + old + c;
-        if(a->incGraphene(&trigramme)) {  //Si le caractère existe dans la map
+        (*trigramme) = std::string() + old2 + old + c;
+        if(a->incGraphene(trigramme)) {  //Si le caractère existe dans la map
             fic.get(c);
             old = c;
             fic.get(c);  //Saute 2 caractère (evite de re utiliser les 3 caractère que l'ont viens d'utiliser)
@@ -132,27 +129,37 @@ void freqTrigramme(Analyse* a) {
 }
 
 int main() {
-    clock_t t1=clock();
-    std::remove("./result2.txt");    //Supprime le fichier de resultat s'il existe déja
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+    std::remove("./result.txt");    //Supprime le fichier de resultat s'il existe déja
 
-    std::string pathIn = "./grosfichier.txt";    //Il faudrai le passé en argument du programme
-    std::string pathOut = "./result2.txt";    //Il faudrai le passé en argument du programme
+    std::string pathIn = "../grosfichier.txt";    //Il faudrai le passé en argument du programme
+    std::string pathOut = "./result.txt";    //Il faudrai le passé en argument du programme
+
     Analyse * aLetter = generateLetterAnalyse(pathIn);
     Analyse * aDigramme = generateDigrammeAnalyse(pathIn);
     Analyse * aTrigramme = generateTrigrammeAnalyse(pathIn);
 
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> temps = t2 - t1;
+    std::cout << "Temps d'initialisation : " << temps.count() << "ms" <<std::endl;
+
     try {
-        std::thread t1(freqLetter, aLetter);
-        std::thread t2(freqDigramme, aDigramme);
-        std::thread t3(freqTrigramme, aTrigramme);
+        freqLetter(aLetter);
+        freqDigramme(aDigramme);
+        freqTrigramme(aTrigramme);
+
+        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+        temps = t3 - t2;
+        std::cout << "Temps d'analyse : " << temps.count() << "ms" <<std::endl;
 
 
-        t1.join();
         printAnalyse(aLetter, pathOut);
-        t2.join();
         printAnalyse(aDigramme, pathOut);
-        t3.join();
         printAnalyse(aTrigramme, pathOut);
+
+        std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
+        temps = t4 - t3;
+        std::cout << "Temps d'ecriture : " << temps.count() << "ms" <<std::endl;
         
     }
     catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
@@ -163,9 +170,9 @@ int main() {
     delete aDigramme;
     delete aTrigramme;
 
-    clock_t t2= clock();
-    float temps = (float)(t2-t1)/CLOCKS_PER_SEC;
-    std::cout << "Le temps d'exécution total est de : " << temps << "s" <<std::endl;
+    std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
+    temps = t5 - t1;
+    std::cout << "Le temps d'exécution total est de : " << temps.count() << "ms" <<std::endl;
 
     return EXIT_SUCCESS;    //FIN
 }
