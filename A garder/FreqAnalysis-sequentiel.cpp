@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <pthread.h>
 
 #include "Analyse.hpp"
 
