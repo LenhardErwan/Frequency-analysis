@@ -1,12 +1,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <chrono>
 #include <pthread.h>
-
+#include <semaphore.h>
 #include <vector>
+#include <thread>
 
 #include "Analyse.hpp"
+
+sem_t semLetter, semDigramme, semTrigramme;
 
 /**
  * @brief Créer un objet Analyse pour connaitre la fréquence des lettres a-z
@@ -80,24 +84,56 @@ void printAnalyse(Analyse * a, std::string path) {
     fic.close();
 }
 
+/**
+ * @brief Structure qui permet de définir les paramètre de la fonction startAnalyse()
+ * @var aLetter : pointeur vers l'objet Analyse pour les lettres
+ * @var aDigramme : pointeur vers l'objet Analyse pour les digrammes
+ * @var aTrigramme : pointeur vers l'objet Analyse pour les trigrammes
+ * @var buffer : pointeur sur un std::streambuf, qui contient une partie du fichier à analyser
+ */
+typedef struct {
+    Analyse* aLetter;
+    Analyse* aDigramme;
+    Analyse* aTrigramme;
+    std::streambuf* buffer;
+} paramAnalyse;
 
-void startAnalyse(Analyse* aLetter, Analyse* aDigramme, Analyse* aTrigramme, std::streambuf * buffer) {
+bool incGraphene(Analyse * a, std::string * graphene, sem_t * semaphore) {
+    //Bloque l'accès si dispo sinon attend
+    sem_wait(semaphore);
+
+    //incrémente le graphène
+    bool ret = a->incGraphene(graphene);
+
+    //débloque 
+    sem_post(semaphore);
+
+    return ret;
+}
+
+/**
+ * @brief permet de lire un buffer et d'incrémenter les graphènes trouvés
+ * 
+ * @param param : Structure avec tous les paramètre à l'intérieur
+ */
+void* startAnalyse(void* _param) {
+    paramAnalyse * param = (paramAnalyse*) _param;
 
     char c; //Caractère lut
     std::string letter ="", dig = "", trig = "";
 
-    while (buffer->sgetc() != EOF ) {    //Caractère actuel
+    while (param->buffer->sgetc() != EOF ) {    //Caractère actuel
 
         //sbumpc() récupère le caractère actuel et incrémente la position dans le buffer
-        c = (char) tolower(buffer->sbumpc());  //met en minuscule le caractère tester
+        c = (char) tolower(param->buffer->sbumpc());  //met en minuscule le caractère tester
 
         //Pour les caractères uniquement
-        aLetter->incGraphene(&(letter = c));
+        incGraphene(param->aLetter, &(letter = c), &semLetter);
 
         //Pour les digrammes
         dig = dig + c;
         if(dig.length() >= 2) {
-            if(aDigramme->incGraphene(&dig))
+            if(incGraphene(param->aDigramme, (&dig), &semDigramme))
                 dig = "";   //remet le graphène à zero (evite d'utiliser un caractère dans deux digrammes)
             else
                 dig.erase(0,1);   //Efface le premier caractère du digramme
@@ -106,7 +142,7 @@ void startAnalyse(Analyse* aLetter, Analyse* aDigramme, Analyse* aTrigramme, std
         //Pour les trigrammes
         trig = trig + c;
         if(trig.length() >= 3) {
-            if(aTrigramme->incGraphene(&trig))
+            if(incGraphene(param->aTrigramme, (&trig), &semTrigramme))
                 trig = "";   //remet le graphène à zero (evite d'utiliser un caractère dans deux trigrammes)
             else
                 trig.erase(0,1);   //Efface le premier caractère du trigramme
@@ -114,9 +150,7 @@ void startAnalyse(Analyse* aLetter, Analyse* aDigramme, Analyse* aTrigramme, std
         
     }
 
-    aLetter->calcFreq();
-    aDigramme->calcFreq();
-    aTrigramme->calcFreq();
+    pthread_exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[]) {
@@ -147,14 +181,18 @@ int main(int argc, char *argv[]) {
         Analyse * aDigramme = generateDigrammeAnalyse();
         Analyse * aTrigramme = generateTrigrammeAnalyse();
 
-        const unsigned short NB_THREADS = 3;
-        std::streambuf** tab_buffer = new std::streambuf*[NB_THREADS];
+        sem_init(&semLetter, 0, 1);
+        sem_init(&semDigramme, 0, 1);
+        sem_init(&semTrigramme, 0, 1);
+        const unsigned short NB_THREADS = 4;
+        pthread_t * tab_thread = new pthread_t[NB_THREADS];
 
-        for (size_t i = 0; i < NB_THREADS; ++i) {
-            std::ifstream f;
-            std::streambuf * s = f.rdbuf();
-            tab_buffer[i] = s;
+        std::vector<std::stringstream*> tab_buffer;
+
+        for (size_t i = 0; i < NB_THREADS; i++) {
+            tab_buffer.push_back(new std::stringstream);
         }
+             
         
         unsigned long NB_LIGNES = 0;
 
@@ -164,7 +202,7 @@ int main(int argc, char *argv[]) {
             if( !fic.is_open() )    //Si le fichier n'est pas ouvert
                 throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + pathIn + "\" !"); //Alors on émet une erreur
 
-            //Compte le nombre de ligen
+            //Compte le nombre de ligne
             std::string line ="";
             while(std::getline(fic,line) ) {
                 ++NB_LIGNES;    //Ajouter dans le bon buffer la ligne
@@ -175,36 +213,30 @@ int main(int argc, char *argv[]) {
             line ="";
             unsigned long numline = 0;
             while(std::getline(fic,line) ) {
-                std::streambuf* sb = tab_buffer[numline++ / (NB_LIGNES / 3)];
-                sb->sputn(line.c_str(), line.length());    //Ajouter dans le bon buffer la ligne
-            }
+                unsigned short val = numline++ / (NB_LIGNES / NB_THREADS);
+                if(val >= NB_THREADS) val = NB_THREADS - 1; //Lorsque on travail avec de grand nombre la precision de la division n'est pas bon donc on obtient le nombre de thread
+                std::stringstream * ss = tab_buffer[val];
 
-            for (size_t i = 0; i < 3; ++i) {
-                std::string path = "test-" + std::to_string(i);
-                path.append(".txt");
-                std::ofstream fic;
-                fic.open(path, std::ios::out | std::ios::app);	//Creer un ostream avec ce buffer
-
-                if( !fic.is_open() )    //Si le fichier n'est pas ouvert
-                    throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
-                
-                while (tab_buffer[i]->sgetc() != EOF ) {    //Caractère actuel
-
-                    //sbumpc() récupère le caractère actuel et incrémente la position dans le buffer
-                    fic << (char) tolower(tab_buffer[i]->sbumpc());  //met en minuscule le caractère tester
-                    
-                }
-
-
-                fic.close();
+                *ss << line << std::endl;   //Ajouter dans le bon buffer la ligne
             }
             
 
-            // startAnalyse(aLetter, aDigramme, aTrigramme, buffer);
+            for (size_t i = 0; i < NB_THREADS; i++) {
+                paramAnalyse * param =  new paramAnalyse{aLetter, aDigramme, aTrigramme, tab_buffer[i]->rdbuf()};
+                pthread_create(&tab_thread[i], NULL, startAnalyse, (void*) param);
+            }
 
-            // printAnalyse(aLetter, pathOut);
-            // printAnalyse(aDigramme, pathOut);
-            // printAnalyse(aTrigramme, pathOut);
+            for (size_t i = 0; i < NB_THREADS; i++) {
+                pthread_join(tab_thread[i], NULL);
+            }
+
+            aLetter->calcFreq();
+            aDigramme->calcFreq();
+            aTrigramme->calcFreq();
+
+            printAnalyse(aLetter, pathOut);
+            printAnalyse(aDigramme, pathOut);
+            printAnalyse(aTrigramme, pathOut);
             
         }
         catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
@@ -220,6 +252,10 @@ int main(int argc, char *argv[]) {
         std::cout << "Le temps d'exécution total est de : " << temps.count() << "ms" <<std::endl;
 
     }
+
+    sem_destroy(&semLetter);
+    sem_destroy(&semDigramme);
+    sem_destroy(&semTrigramme);
 
     return EXIT_SUCCESS;    //FIN
 }
