@@ -12,10 +12,10 @@
  * @return Analyse* : Pointeur sur un l'objet Analyse
  */
 Analyse* generateLetterAnalyse(std::string pathIn) {
-    std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
+    std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractères et pour valeur leur itération
 
     for (char letter = 'a'; letter <= 'z'; ++letter) {  //Permet d'avoir tout l'alphabet en minuscule
-        map->emplace(std::string(1, letter), 0.0f);    //rempli la map avec l'alaphabet initialisé à 0
+        map->emplace(std::string(1, letter), 0.0f);    //rempli la map avec l'alphabet initialisé à 0
     }
 
     return new Analyse(map, pathIn);
@@ -28,11 +28,11 @@ Analyse* generateLetterAnalyse(std::string pathIn) {
  * @return Analyse* : Pointeur sur un l'objet Analyse
  */
 Analyse* generateDigrammeAnalyse(std::string pathIn) {
-    std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
+    std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractères et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
         for(char letter2 = 'a';  letter2 <= 'z'; ++letter2) {
-            map->emplace(std::string() + letter1 + letter2, 0.0f);    //rempli la map avec les digrammes initialisé à 0
+            map->emplace(std::string() + letter1 + letter2, 0.0f);    //rempli la map avec les digrammes initialisés à 0
         }
     }
 
@@ -46,7 +46,7 @@ Analyse* generateDigrammeAnalyse(std::string pathIn) {
  * @return Analyse* : Pointeur sur un l'objet Analyse
  */
 Analyse* generateTrigrammeAnalyse(std::string pathIn) {
-    std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractère et pour valeur leur itération
+    std::map<std::string, float> * map = new std::map<std::string, float>; //Créer une map avec pour clé les caractères et pour valeur leur itération
 
     for (char letter1 = 'a'; letter1 <= 'z'; ++letter1) { 
         for(char letter2 = 'a';  letter2 <= 'z'; ++letter2) {
@@ -89,14 +89,14 @@ void freqLetter(Analyse * a) {
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
 
-    char c; //Caractère lut
+    char c; //Caractère lu
     std::string letter;
 
-    while (fic.get(c)) {    //Tant que il y a des caractères a lire
+    while (fic.get(c)) {    //Tant qu'il y a des caractères à lire
         a->incGraphene(&(letter = c));
     }
     
-    a->calcFreq();//Créer les fréquence et la map finale
+    a->calcFreq();//Créer les fréquences et la map finale
 
     fic.close();    //ferme le fichier (libère la mémoire je suppose)
 }
@@ -113,7 +113,7 @@ void freqDigramme(Analyse * a) {
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
 
-    char c; //Caractère lut
+    char c; //Caractère lu
     char old = fic.get();
     std::string digramme = "";  //Variable temporaire qui prend le caractère extrait + le suivant (non  extrait)
 
@@ -121,7 +121,7 @@ void freqDigramme(Analyse * a) {
         c = tolower(c);  //met en minuscule le caractère testé
         digramme = std::string() + old + c;
         if(a->incGraphene(&digramme)) {  //Si le caractère existe dans la map
-            fic.get(c); //On passe au caractère suivant (évite de prendre un lettre deux fois pour un digramme)
+            fic.get(c); //On passe au caractère suivant (évite de prendre une lettre deux fois pour un digramme)
         }
         old = c;
     }
@@ -143,7 +143,7 @@ void freqTrigramme(Analyse * a) {
     if( !fic.is_open() )    //Si le fichier n'est pas ouvert
         throw std::ios_base::failure("Impossible d'ouvrir le fichier: \"" + path + "\" !"); //Alors on émet une erreur
 
-    char c; //Caractère lut (dernier caractère)
+    char c; //Caractère lu (dernier caractère)
     char old2 = tolower(fic.get());    // sur trois caractère c'est le premier
     char old = tolower(fic.get());     // sur trois caractère c'est le second
     std::string * trigramme = new std::string("");  //Variable temporaire qui prend le caractère extrait + le suivant (non  extrait)
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
             std::cout << "Le temps d'écriture est de : " << temps.count() << "ms" <<std::endl;
             
         }
-        catch (std::out_of_range & e) { //Si le fichier ne peux pas s'ouvrire
+        catch (std::out_of_range & e) { //Si le fichier ne peut pas s'ouvrir
             std::cerr << e.what() << std::endl;
         }
         

@@ -18,7 +18,7 @@ Analyse::~Analyse() {
 
 void Analyse::calcFreq() {
     for (std::map<std::string, float>::iterator it = map->begin(); it != map->end(); ++it) {    //Parcours toute la map
-        it->second = it->second / nbGraphene;  //Pour chaque élément on calcul sa fréquence
+        it->second = it->second / nbGraphene;  //Pour chaque élément on calcule sa fréquence
     }
 }
 
@@ -27,7 +27,7 @@ bool Analyse::incGraphene(std::string* graphene) {
 
     if(it != map->end()) {  //Si le graphène existe dans la map
         ++it->second;   //Incrémente la valeur du graphène
-        ++nbGraphene;   //Incrément le nombre de graphènes analysés
+        ++nbGraphene;   //Incrémente le nombre de graphènes analysés
         return true;
     }
     else
@@ -37,7 +37,7 @@ bool Analyse::incGraphene(std::string* graphene) {
 
 
 std::ostream& operator<<(std::ostream& os, const Analyse & a) {
-    os << "Taille de la map " << a.map->size() << ", Nombre de graphènes trouvés " << a.nbGraphene << std::endl; //Affiche la taille de la map et le nombre de caractère analysé pris en compte
+    os << "Taille de la map " << a.map->size() << ", Nombre de graphènes trouvés " << a.nbGraphene << std::endl; //Affiche la taille de la map et le nombre de caractères analysés pris en compte
 
     for (std::map<std::string, float>::iterator it = a.map->begin(); it != a.map->end(); ++it) {    //Parcours de la liste
         os << it->first << " à pour valeur " << it->second << std::endl; //Pour chaque élément on affiche le caractère et sa fréquence

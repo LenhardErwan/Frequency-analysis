@@ -51,7 +51,7 @@ class Analyse {
 
 
         /**
-         * @brief Calcul la fréquence des graphènes
+         * @brief Calcule la fréquence des graphènes
          * 
          */
         void calcFreq();
@@ -97,7 +97,7 @@ class Analyse {
 
 
         /**
-         * @brief Permet d'écrire l'objet dans un un flux ostream
+         * @brief Permet d'écrire l'objet dans un flux ostream
          * 
          * @param os 
          * @param a 
