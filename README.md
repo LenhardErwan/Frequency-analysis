@@ -1,18 +1,21 @@
 # Frequency-analysis
+## Compilation
+Dans un terminal :
+```bash build-project.sh```
 
-## Compilation et Utilisation
+## Utilisation
+Il existe 4 version de ce programme 2 séquentiels et 2 multi-thread.
+Une paire est dans *Algo1* et l'autre dans *Algo2*.
+Les différences entre ces versions sont expliquées dans le fichier pdf.
 
-Version séquentielle
-```g++ FreqAnalysis-sequentiel.cpp Analyse.cpp -o FreqAnalysis-sequentiel.exe```
-```./FreqAnalysis-sequentiel.exe /path/to/file.txt```
+Exemple d'utilisation :
+```
+$ cd Algo1
+$ ./FreqAnalysis-sequentiel.exe ../Fichiers-Test/fic200ko.txt
+```
+## Test 
+Pour lancer tous les tests sur chaques versions du programme, et différents fichiers d'entrée :
+```bash test-project.sh```
 
-Version avec pthread
-```g++ FreqAnalysis-pthread.cpp Analyse.cpp -o FreqAnalysis-pthread.exe -lpthread```
-```./FreqAnalysis-pthread.exe /path/to/file.txt```
-
-
-## Fonctionnement
-
-Le programme prend en paramètre le chemin vers le fichier à analyser. Puis, il prépare le nom du fichier de sorti (date à l'éxécution). Puis, il génère les objets **Analyse**, avec le chemin d'entrée et un tableau associatif avec pour clé le graphène à rechercher et pour valeur 0. Lors de l'analyse, ce tableau associatif prendra en valeur le nombre d'itérations de chaque graphènes et à la fin de la lecture du fichier la valeur sera la fréquence de chaque graphènes.
-Ensuite, le programme fait l'analyse des lettres, puis des digrammes et enfin des trigramme, chaque **Analyse** lit le fichier entièrement (Après des tests nous avons remarqué que lire un seul fois le fichier ou plusieur fois n'influer pas sur le temps d'éxécution). A la fin de la lecture, la fréquence de chaque graphènes est calculée.
-Enfin, le programme ecrit dans un fichier le résultat de l'analyse des lettres, puis des digrammes et des trigrammes. Puis libère la mémoire.
+## Copyright & License
+Tous droits réservés à LENHARD Erwan et SORIA Arnaud.
