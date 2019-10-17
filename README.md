@@ -4,7 +4,7 @@ Dans un terminal :
 ```bash build-project.sh```
 
 ## Utilisation
-Il existe 4 version de ce programme 2 séquentiels et 2 multi-thread.
+Il existe 4 versions de ce programme 2 séquentiels et 2 multi-thread.
 Une paire est dans *Algo1* et l'autre dans *Algo2*.
 Les différences entre ces versions sont expliquées dans le fichier pdf.
 
